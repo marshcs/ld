@@ -1,0 +1,10 @@
+
+# ignore word temp files
+*.tmp
+~$*
+
+# ignore directories
+/.vscode
+/Layer_decoder/modelsim/
+*.cache/
+*.runs/
