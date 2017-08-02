@@ -415,7 +415,7 @@ generate
 
         mbpu #(
         		.BLOCK_SIZE		(BLK_SIZE               ),                                    //= 127,
-        	 	.QUAN_WIDTH		(MESSAGE_WIDTH          ),                                    //= 4,
+        	 	.C2V_WIDTH		(MESSAGE_WIDTH-1        ),                                    //= 4,
         		.ROW_BLOCK		(PCM_ROWN               ),                                    //= 6,		// 行块数
         		.COL_BLOCK		(PCM_COLN               ),                                    //= 72,		// 列块数
         		.COL_CNT_WIDTH	(COL_CNT_WIDTH          ),                                    //= 5,

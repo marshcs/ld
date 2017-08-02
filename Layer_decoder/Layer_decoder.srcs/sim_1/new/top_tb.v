@@ -128,7 +128,7 @@ end
 
 always @(posedge clk) begin
 	if(~rst_n)									                i_init_info <= 0;
-	else if(cnt >= 303 && cnt < 318)							i_init_info <= 2;
+	else if(cnt >= 300 && cnt <= 301)							i_init_info <={{9{2'b10}},{499{2'b00}}};
     else                                                        i_init_info <= 0;
 end
 
