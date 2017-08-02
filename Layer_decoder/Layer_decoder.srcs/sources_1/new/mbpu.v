@@ -1,6 +1,6 @@
 module mbpu	#(
 	parameter	BLOCK_SIZE		= 127,
-	parameter 	QUAN_WIDTH		= 4,
+	parameter 	C2V_WIDTH		= 4,
 	parameter	ROW_BLOCK		= 6,		// 行块数
 	parameter	COL_BLOCK		= 72,		// 列块数
 	parameter	COL_CNT_WIDTH	= 7,
@@ -21,16 +21,17 @@ module mbpu	#(
 	input			[COL_CNT_WIDTH-1:0]						i_col_cnt_2		,
 	input													i_2_last		,
 
-	input			[MB_COL*BLOCK_SIZE*QUAN_WIDTH-1:0]		i_l				,
+	input			[MB_COL*BLOCK_SIZE*(C2V_WIDTH+1)-1:0]	i_l				,
 	input			[MB_COL*BLOCK_SIZE-1:0]					i_1_sign_q		,
 	input			[MB_COL*BLOCK_SIZE-1:0]					i_2_sign_q		,
 	input			[MB_COL*BLOCK_SIZE-1:0]					i_2_sign_q_ap	,
 
-	output			[MB_COL*BLOCK_SIZE*QUAN_WIDTH-1:0]		o_d				,
+	output			[MB_COL*BLOCK_SIZE*(C2V_WIDTH+1)-1:0]	o_d				,
 	output			[MB_COL*BLOCK_SIZE-1:0]					o_1_sign_q
 	
 );
 
+	localparam APP_WIDTH = C2V_WIDTH+1;
 
 	genvar	i;	// 1-> BLOCK_SIZE
 	genvar	j;	// 1-> MB_COL
@@ -39,25 +40,25 @@ module mbpu	#(
 		
 		for	(i=0; i < BLOCK_SIZE; i=i+1)	begin: pe_cluster
 
-			wire	[MB_COL*QUAN_WIDTH-1:0]	w_i_l			;
+			wire	[MB_COL*APP_WIDTH-1:0]	w_i_l			;
 			wire	[MB_COL-1:0]			w_1_sign_q		;
 			wire	[MB_COL-1:0]			w_2_sign_q		;
 			wire	[MB_COL-1:0]			w_2_sign_q_ap	;
-			wire	[MB_COL*QUAN_WIDTH-1:0]	w_o_d			;
+			wire	[MB_COL*APP_WIDTH-1:0]	w_o_d			;
 			wire	[MB_COL-1:0]			w_o_1_sign_q		;
 
 			for	(j=0; j< MB_COL; j=j+1)	begin: pe_cluster_assign
-				assign	w_i_l[(j+1)*QUAN_WIDTH-1:j*QUAN_WIDTH] = i_l[(j*BLOCK_SIZE+i)*QUAN_WIDTH +: QUAN_WIDTH];
+				assign	w_i_l[(j+1)*APP_WIDTH-1:j*APP_WIDTH] = i_l[(j*BLOCK_SIZE+i)*APP_WIDTH +: APP_WIDTH];
 				assign	w_1_sign_q[j] = i_1_sign_q[(j)*BLOCK_SIZE + i];
 				assign	w_2_sign_q[j] = i_2_sign_q[(j)*BLOCK_SIZE + i];
 				assign	w_2_sign_q_ap[j] = i_2_sign_q_ap[(j)*BLOCK_SIZE + i];
 
-				assign	o_d[((j)*BLOCK_SIZE+i)*QUAN_WIDTH +: QUAN_WIDTH] = w_o_d[(j)*QUAN_WIDTH +: QUAN_WIDTH];
+				assign	o_d[((j)*BLOCK_SIZE+i)*APP_WIDTH +: APP_WIDTH] = w_o_d[(j)*APP_WIDTH +: APP_WIDTH];
 				assign	o_1_sign_q[(j)*BLOCK_SIZE + i] = w_o_1_sign_q[j]; 
 			end
 
 			pe #(
-				.QUAN_WIDTH		(QUAN_WIDTH		),
+				.C2V_WIDTH		(C2V_WIDTH		),
 				.ROW_BLOCK	    (ROW_BLOCK	  	),
 				.COL_BLOCK	    (COL_BLOCK	  	),
 				.COL_CNT_WIDTH  (COL_CNT_WIDTH	),
