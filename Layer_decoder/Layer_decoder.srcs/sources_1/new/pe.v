@@ -1,7 +1,7 @@
 module pe #(
 	parameter 	C2V_WIDTH		= 4,
-	parameter	ROW_BLOCK		= 6,		// ÐÐ¿éÊý
-	parameter	COL_BLOCK		= 72,		// ÁÐ¿éÊý
+	parameter	ROW_BLOCK		= 6,		// è¡Œå—æ•°
+	parameter	COL_BLOCK		= 72,		// åˆ—å—æ•°
 	parameter	COL_CNT_WIDTH	= 7,
 	parameter	ROW_CNT_WIDTH	= 2,
 	parameter	MB_COL			= 4,
@@ -10,19 +10,19 @@ module pe #(
 	input									i_clk			,
 	input									i_rst_n			,
 
-	// stage1 £ºÉú³ÉC2VÐÅÏ¢¡¢ÕÒµ½×îÐ¡Öµ	
+	// stage1 ï¼šç”ŸæˆC2Vä¿¡æ¯ã€æ‰¾åˆ°æœ€å°å€¼	
 	input			[MB_COL-1:0]			i_vld_1			,
 	input			[ROW_CNT_WIDTH-1:0]		i_row_cnt_1		,
 	input			[COL_CNT_WIDTH-1:0]		i_col_cnt_1		,
 	input									i_1_last		,
 
-	// stage2£ºÉú³ÉÁ½´ÎC2VÐÅÏ¢µÄ²îÖµ D 	
+	// stage2ï¼šç”Ÿæˆä¸¤æ¬¡C2Vä¿¡æ¯çš„å·®å€¼ D 	
 	input			[MB_COL-1:0]			i_vld_2			,
 	input			[ROW_CNT_WIDTH-1:0]		i_row_cnt_2		,
 	input			[COL_CNT_WIDTH-1:0]		i_col_cnt_2		,
 	input									i_2_last		,
 
-	input			[MB_COL*C2V_WIDTH-1:0]	i_l				,			// ÊäÈëÐÅºÅ
+	input			[MB_COL*C2V_WIDTH-1:0]	i_l				,			// è¾“å…¥ä¿¡å·
 	input			[MB_COL-1:0]			i_1_sign_q		,
 	input			[MB_COL-1:0]			i_2_sign_q		,
 	input			[MB_COL-1:0]			i_2_sign_q_ap	,
@@ -51,7 +51,7 @@ module pe #(
 	wire	[2*MB_COL_WIDTH+1:0]					w_min_idx;
 	wire	[MB_COL_WIDTH-1:0]						w_min1_idx;
 
-//------------------>> ¶Ë¿ÚÔ¤´¦Àí >>--------------------------
+//------------------>> ç«¯å£é¢„å¤„ç† >>--------------------------
 	// input
 	wire	signed	[APP_WIDTH-1:0]	w_l		[0:MB_COL-1]			;
 
@@ -64,7 +64,7 @@ module pe #(
 
 	// output
 
-//------------------<< ¶Ë¿ÚÔ¤´¦Àí <<--------------------------	
+//------------------<< ç«¯å£é¢„å¤„ç† <<--------------------------	
 
 //------------------>> R_regfile >>----------------------------
 
