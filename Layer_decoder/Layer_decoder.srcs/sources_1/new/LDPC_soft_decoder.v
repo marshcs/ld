@@ -233,7 +233,7 @@ wire [SUBPCM_COLN*BLK_SIZE*MESSAGE_WIDTH-1:0] i_init_llr;
 wire llr_mem_wea;//llr存储写使能，初始化或者更新时有效 初始化写使能或者MUS输出结果使能
 wire [MESSAGE_WIDTH*BLK_SIZE-1:0] llr_fifo_dout [0:3];
 reg signed [MESSAGE_WIDTH+1:0] r_data_max = {3'b000, {(MESSAGE_WIDTH-1){1'b1}}};
-reg signed [MESSAGE_WIDTH+1:0] r_data_min = {3'b111, {(MESSAGE_WIDTH-2){1'b0}}, 1'b1};
+reg signed [MESSAGE_WIDTH+1:0] r_data_min = {3'b111, {(MESSAGE_WIDTH-1){1'b0}}};
 
 wire [MESSAGE_WIDTH*BLK_SIZE-1:0] r_stage2_shift_data [0:7];
 
@@ -369,7 +369,7 @@ wire [SHIFT_MEM_WIDTH-1:0] w_shift_rom_dout [0:1];
 wire [COL_CNT_WIDTH:0] shift_rom_addr1;
 wire [COL_CNT_WIDTH:0] shift_rom_addr2;
 assign shift_rom_addr1 = r_layer_cnt == 0 ? (r_decode_cnt - RW_LATENCY) : r_layer_cnt == 1 ? (r_decode_cnt + APP_INFO_DEPTH - RW_LATENCY) : (r_decode_cnt + 2*APP_INFO_DEPTH - RW_LATENCY);
-assign shift_rom_addr2 = r_layer_cnt == 0 ? r_decode_cnt : r_layer_cnt == 1 ? (r_decode_cnt + APP_INFO_DEPTH) : (r_decode_cnt + 2*APP_INFO_DEPTH);
+assign shift_rom_addr2 = r_layer_cnt == 0 ? (r_decode_cnt + 2*APP_INFO_DEPTH) : r_layer_cnt == 1 ? r_decode_cnt : (r_decode_cnt + APP_INFO_DEPTH);
 
 shift_rom first_shift_rom (
   .clka(clk),    // input wire clka
@@ -391,8 +391,8 @@ wire [MESSAGE_WIDTH*BLK_SIZE-1:0] r_stage1_shift_data [0:7];
 
 wire [SUBPCM_COLN-1:0] w_valid_stage1;
 wire [SUBPCM_COLN-1:0] w_valid_stage2;
-assign w_valid_stage1 = ((r_init_cnt > APP_INFO_DEPTH) && (r_decode_cnt >= RW_LATENCY + RW_LATENCY) && (r_decode_cnt < RW_LATENCY + RW_LATENCY + APP_INFO_DEPTH) && ~r_decoding_end) ? 4'b1111 : 4'b0000; 
-assign w_valid_stage2 = ((r_iter_cnt > 0 || r_layer_cnt > 0) && (r_init_cnt > APP_INFO_DEPTH) && (r_decode_cnt >= RW_LATENCY) && (r_decode_cnt < RW_LATENCY + APP_INFO_DEPTH) && ~r_decoding_end) ? 4'b1111 : 4'b0000; 
+assign w_valid_stage1 = ((r_init_cnt > APP_INFO_DEPTH) && (r_decode_cnt >= RW_LATENCY + RW_LATENCY) && ~r_decoding_end) ? ((r_decode_cnt < RW_LATENCY + RW_LATENCY + APP_INFO_DEPTH - 1) ? 4'b1111 : (r_decode_cnt < RW_LATENCY + RW_LATENCY + APP_INFO_DEPTH) ? 4'b1110 : 4'b0000) : 4'b0000; 
+assign w_valid_stage2 = ((r_iter_cnt > 0 || r_layer_cnt > 0) && (r_init_cnt > APP_INFO_DEPTH) && (r_decode_cnt >= RW_LATENCY) && ~r_decoding_end) ? ((r_decode_cnt < RW_LATENCY + APP_INFO_DEPTH - 1) ? 4'b1111 : (r_decode_cnt < RW_LATENCY + APP_INFO_DEPTH) ? 4'b1110 : 4'b0000) : 4'b0000; 
 
 wire [LAYER_CNT_WIDTH-1:0] r_row_cnt_2;
 wire [SUBPCM_COLN*BLK_SIZE*MESSAGE_WIDTH-1:0] w_shift_llr [0:1];
@@ -415,7 +415,7 @@ generate
 
         mbpu #(
         		.BLOCK_SIZE		(BLK_SIZE               ),                                    //= 127,
-        	 	.C2V_WIDTH		(MESSAGE_WIDTH-1        ),                                    //= 4,
+        	 	.C2V_WIDTH		(MESSAGE_WIDTH	        ),                                    //= 4,
         		.ROW_BLOCK		(PCM_ROWN               ),                                    //= 6,		// 行块数
         		.COL_BLOCK		(PCM_COLN               ),                                    //= 72,		// 列块数
         		.COL_CNT_WIDTH	(COL_CNT_WIDTH          ),                                    //= 5,
@@ -540,7 +540,7 @@ endgenerate
 
 // -------------------------^ decode word output ^-------------------------
 
-assign o_decoding_end = ((r_iter_cnt == MAX_ITER - 1) && r_decode_cnt == COL_CAL_DELAY && r_layer_cnt == 2) || (o_parity_check_satisfied && w_check_result_valid);
+assign o_decoding_end = ((r_init_cnt > APP_INFO_DEPTH) && (r_iter_cnt == MAX_ITER - 1) && r_decode_cnt == COL_CAL_DELAY && r_layer_cnt == 2) || (o_parity_check_satisfied && w_check_result_valid);
 assign o_decoded_info_valid = r_decoding_end && (r_output_cnt >= RW_LATENCY) &&  (r_output_cnt < RW_LATENCY + APP_INFO_DEPTH);
 assign o_decoded_info_last = r_decoding_end && (r_output_cnt == RW_LATENCY + APP_INFO_DEPTH - 1);
 

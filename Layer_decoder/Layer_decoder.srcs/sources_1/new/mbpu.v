@@ -21,17 +21,17 @@ module mbpu	#(
 	input			[COL_CNT_WIDTH-1:0]						i_col_cnt_2		,
 	input													i_2_last		,
 
-	input			[MB_COL*BLOCK_SIZE*(C2V_WIDTH+1)-1:0]	i_l				,
+	input			[MB_COL*BLOCK_SIZE*C2V_WIDTH-1:0]		i_l				,
 	input			[MB_COL*BLOCK_SIZE-1:0]					i_1_sign_q		,
 	input			[MB_COL*BLOCK_SIZE-1:0]					i_2_sign_q		,
 	input			[MB_COL*BLOCK_SIZE-1:0]					i_2_sign_q_ap	,
 
-	output			[MB_COL*BLOCK_SIZE*(C2V_WIDTH+1)-1:0]	o_d				,
+	output			[MB_COL*BLOCK_SIZE*C2V_WIDTH-1:0]		o_d				,
 	output			[MB_COL*BLOCK_SIZE-1:0]					o_1_sign_q
 	
 );
 
-	localparam APP_WIDTH = C2V_WIDTH+1;
+	localparam APP_WIDTH = C2V_WIDTH;
 
 	genvar	i;	// 1-> BLOCK_SIZE
 	genvar	j;	// 1-> MB_COL

@@ -93,8 +93,8 @@ LDPC_soft_decoder #(
 )tb_LDPC_soft_decoder(
 	.clk							(clk						    ),
 	.rst_n						    (rst_n					        ),
-	.i_strength0					(6'd2				            ),
-	.i_strength1					(6'd5				            ),
+	.i_strength0					(6'd8				            ),
+	.i_strength1					(6'd12				            ),
 	.i_init_info 				    (i_init_info 			        ),
 	.i_init_info_valid 			    (i_init_info_valid 		        ),
 	.o_init_info_ready 			    (o_init_info_ready 		        ),
@@ -128,7 +128,8 @@ end
 
 always @(posedge clk) begin
 	if(~rst_n)									                i_init_info <= 0;
-	else if(cnt >= 300 && cnt <= 301)							i_init_info <={{9{2'b10}},{499{2'b00}}};
+	else if(cnt >= 300 && cnt <= 307)							i_init_info <={{5{4'b1000}},{498{2'b00}}};
+	else if(cnt >= 309 && cnt <= 311)							i_init_info <={{5{4'b0010}},{498{2'b00}}};
     else                                                        i_init_info <= 0;
 end
 
