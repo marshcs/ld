@@ -164,10 +164,10 @@ module pe #(
 //------------------<< R_gen <<--------------------------------
 
 //------------------>> Q >>------------------------------------
-	localparam MAX_C2V_POS = 	(1<<(C2V_WIDTH-2)) - 1	;
-	localparam MAX_C2V_NEG = -	(1<<(C2V_WIDTH-2))		;
 	localparam MAX_APP_POS = 	(1<<(APP_WIDTH-1)) - 1	;
-	localparam MAX_APP_NEG = -	(1<<(APP_WIDTH-1))		;
+	localparam MAX_APP_NEG = -	MAX_APP_POS				;
+	localparam MAX_C2V_POS = 	MAX_APP_POS				;
+	localparam MAX_C2V_NEG = 	MAX_APP_NEG				;
 	
 	wire	signed	[APP_WIDTH	:0]		w_q_pre			[0:MB_COL-1];
 	wire	signed	[C2V_WIDTH-1:0]		w_q				[0:MB_COL-1];
@@ -182,7 +182,7 @@ module pe #(
 			// assign	w_q_pre[i] = (w_l[i] == MAX_APP_POS) ? MAX_C2V_POS : (w_l[i] == MAX_APP_NEG ? MAX_C2V_NEG : (w_l[i] - r_1_r[i]));
 			
 			assign	w_q_pre[i] = w_l[i] - r_1_r[i];
-			assign	w_q[i] = (w_q_pre[i] >= MAX_C2V_POS) ? MAX_C2V_POS : (w_q_pre[i] <= MAX_C2V_NEG ? MAX_C2V_NEG : w_q_pre[i][C2V_WIDTH-1:0]);
+			assign	w_q[i] = (w_q_pre[i] > MAX_C2V_POS) ? MAX_C2V_POS : (w_q_pre[i] < MAX_C2V_NEG ? MAX_C2V_NEG : w_q_pre[i][C2V_WIDTH-1:0]);
 			assign	w_q_sign[i] = ~i_vld_1[i] ? 0 : w_q[i][C2V_WIDTH-1];
 			assign	w_q_abs_para[(i+1)*(C2V_WIDTH-1)-1:i*(C2V_WIDTH-1)] = r_q_abs[i];
 			always@(*)	begin
@@ -190,7 +190,7 @@ module pe #(
 				else if(w_q_sign[i])				r_q_abs[i] = ~w_q[i][C2V_WIDTH-2:0] + 1;
 				else 								r_q_abs[i] =  w_q[i][C2V_WIDTH-2:0];
 			end
-			
+
 		end
 
 	endgenerate
