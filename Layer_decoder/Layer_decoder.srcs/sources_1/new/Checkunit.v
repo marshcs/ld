@@ -73,7 +73,7 @@ module Checkunit#(
             	.SHIFT_OFFSET_WIDTH 	(SHIFT_OFFSET_WIDTH)	
             ) barrel_shifter_pblk (	
             	.i_blk_ena		        (I_dsign_valid                                                       ),		
-            	.i_shift_offset	        (I_shift_offset [SHIFT_OFFSET_WIDTH*(i+1)-1:SHIFT_OFFSET_WIDTH*i]    ),	
+            	.i_shift_offset	        (BLOCK_SIZE[SHIFT_OFFSET_WIDTH-1:0] - I_shift_offset [SHIFT_OFFSET_WIDTH*(i+1)-1:SHIFT_OFFSET_WIDTH*i]    ),	//8.24更改
             	.i_data			        (I_dsign        [DATA_NUM*(i+1)-1:DATA_NUM*i]                        ),	
             	.o_shift_data	        (W_shift_dsign  [i][DATA_NUM-1:0]                                    )	
             );	

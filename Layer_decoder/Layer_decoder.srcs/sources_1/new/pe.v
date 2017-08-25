@@ -1,7 +1,7 @@
 module pe #(
 	parameter 	C2V_WIDTH		= 4,
-	parameter	ROW_BLOCK		= 6,		// è¡Œå—æ•°
-	parameter	COL_BLOCK		= 72,		// åˆ—å—æ•°
+	parameter	ROW_BLOCK		= 6,		// ÐÐ¿éÊý
+	parameter	COL_BLOCK		= 72,		// ÁÐ¿éÊý
 	parameter	COL_CNT_WIDTH	= 7,
 	parameter	ROW_CNT_WIDTH	= 2,
 	parameter	MB_COL			= 4,
@@ -10,19 +10,19 @@ module pe #(
 	input									i_clk			,
 	input									i_rst_n			,
 
-	// stage1 ï¼šç”ŸæˆC2Vä¿¡æ¯ã€æ‰¾åˆ°æœ€å°å€¼	
+	// stage1 £ºÉú³ÉC2VÐÅÏ¢¡¢ÕÒµ½×îÐ¡Öµ	
 	input			[MB_COL-1:0]			i_vld_1			,
 	input			[ROW_CNT_WIDTH-1:0]		i_row_cnt_1		,
 	input			[COL_CNT_WIDTH-1:0]		i_col_cnt_1		,
 	input									i_1_last		,
 
-	// stage2ï¼šç”Ÿæˆä¸¤æ¬¡C2Vä¿¡æ¯çš„å·®å€¼ D 	
+	// stage2£ºÉú³ÉÁ½´ÎC2VÐÅÏ¢µÄ²îÖµ D 	
 	input			[MB_COL-1:0]			i_vld_2			,
 	input			[ROW_CNT_WIDTH-1:0]		i_row_cnt_2		,
 	input			[COL_CNT_WIDTH-1:0]		i_col_cnt_2		,
 	input									i_2_last		,
 
-	input			[MB_COL*C2V_WIDTH-1:0]	i_l				,			// è¾“å…¥ä¿¡å·
+	input			[MB_COL*C2V_WIDTH-1:0]	i_l				,			// ÊäÈëÐÅºÅ
 	input			[MB_COL-1:0]			i_1_sign_q		,
 	input			[MB_COL-1:0]			i_2_sign_q		,
 	input			[MB_COL-1:0]			i_2_sign_q_ap	,
@@ -51,7 +51,7 @@ module pe #(
 	wire	[2*MB_COL_WIDTH+1:0]					w_min_idx;
 	wire	[MB_COL_WIDTH-1:0]						w_min1_idx;
 
-//------------------>> ç«¯å£é¢„å¤„ç† >>--------------------------
+//------------------>> ¶Ë¿ÚÔ¤´¦Àí >>--------------------------
 	// input
 	wire	signed	[APP_WIDTH-1:0]	w_l		[0:MB_COL-1]			;
 
@@ -64,7 +64,7 @@ module pe #(
 
 	// output
 
-//------------------<< ç«¯å£é¢„å¤„ç† <<--------------------------	
+//------------------<< ¶Ë¿ÚÔ¤´¦Àí <<--------------------------	
 
 //------------------>> R_regfile >>----------------------------
 
@@ -164,10 +164,10 @@ module pe #(
 //------------------<< R_gen <<--------------------------------
 
 //------------------>> Q >>------------------------------------
+	localparam MAX_C2V_POS = 	(1<<(C2V_WIDTH-2)) - 1	;
+	localparam MAX_C2V_NEG = -	(1<<(C2V_WIDTH-2))		;
 	localparam MAX_APP_POS = 	(1<<(APP_WIDTH-1)) - 1	;
-	localparam MAX_APP_NEG = -	MAX_APP_POS				;
-	localparam MAX_C2V_POS = 	MAX_APP_POS				;
-	localparam MAX_C2V_NEG = 	MAX_APP_NEG				;
+	localparam MAX_APP_NEG = -	(1<<(APP_WIDTH-1))		;
 	
 	wire	signed	[APP_WIDTH	:0]		w_q_pre			[0:MB_COL-1];
 	wire	signed	[C2V_WIDTH-1:0]		w_q				[0:MB_COL-1];
@@ -182,7 +182,7 @@ module pe #(
 			// assign	w_q_pre[i] = (w_l[i] == MAX_APP_POS) ? MAX_C2V_POS : (w_l[i] == MAX_APP_NEG ? MAX_C2V_NEG : (w_l[i] - r_1_r[i]));
 			
 			assign	w_q_pre[i] = w_l[i] - r_1_r[i];
-			assign	w_q[i] = (w_q_pre[i] > MAX_C2V_POS) ? MAX_C2V_POS : (w_q_pre[i] < MAX_C2V_NEG ? MAX_C2V_NEG : w_q_pre[i][C2V_WIDTH-1:0]);
+			assign	w_q[i] = (w_q_pre[i] >= MAX_C2V_POS) ? MAX_C2V_POS : (w_q_pre[i] <= MAX_C2V_NEG ? MAX_C2V_NEG : w_q_pre[i][C2V_WIDTH-1:0]);
 			assign	w_q_sign[i] = ~i_vld_1[i] ? 0 : w_q[i][C2V_WIDTH-1];
 			assign	w_q_abs_para[(i+1)*(C2V_WIDTH-1)-1:i*(C2V_WIDTH-1)] = r_q_abs[i];
 			always@(*)	begin
@@ -190,7 +190,7 @@ module pe #(
 				else if(w_q_sign[i])				r_q_abs[i] = ~w_q[i][C2V_WIDTH-2:0] + 1;
 				else 								r_q_abs[i] =  w_q[i][C2V_WIDTH-2:0];
 			end
-
+			
 		end
 
 	endgenerate

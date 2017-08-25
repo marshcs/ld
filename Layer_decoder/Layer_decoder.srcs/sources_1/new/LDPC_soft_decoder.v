@@ -245,7 +245,7 @@ generate
         for(j = 0; j < BLK_SIZE; j = j + 1) begin: app_update_2	
 			wire signed [MESSAGE_WIDTH+1:0] w_temp_add_result;//计算过程中用8bit运算
             assign w_temp_add_result = {{2{r_stage2_shift_data[i][MESSAGE_WIDTH*(j+1)-1]}}, r_stage2_shift_data[i][MESSAGE_WIDTH*(j+1)-1:MESSAGE_WIDTH*j]} + {{2{r_stage2_shift_data[i+4][MESSAGE_WIDTH*(j+1)-1]}}, r_stage2_shift_data[i+4][MESSAGE_WIDTH*(j+1)-1:MESSAGE_WIDTH*j]} + {{2{llr_fifo_dout[i][MESSAGE_WIDTH*(j+1)-1]}}, llr_fifo_dout[i][MESSAGE_WIDTH*(j+1)-1:MESSAGE_WIDTH*j]};
-            assign w_new_app[i][MESSAGE_WIDTH*(j+1)-1:MESSAGE_WIDTH*j] = (w_temp_add_result >= r_data_max) ? {1'b0, {(MESSAGE_WIDTH-1){1'b1}}} : (w_temp_add_result <= r_data_min) ? {1'b1, {(MESSAGE_WIDTH-2){1'b0}}, 1'b1} : {w_temp_add_result[MESSAGE_WIDTH+1], w_temp_add_result[MESSAGE_WIDTH-2:0]};
+            assign w_new_app[i][MESSAGE_WIDTH*(j+1)-1:MESSAGE_WIDTH*j] = (w_temp_add_result >= r_data_max) ? {1'b0, {(MESSAGE_WIDTH-1){1'b1}}} : (w_temp_add_result <= r_data_min) ? {1'b1, {(MESSAGE_WIDTH-1){1'b0}}} : {w_temp_add_result[MESSAGE_WIDTH+1], w_temp_add_result[MESSAGE_WIDTH-2:0]};
         end
     end	
 endgenerate
@@ -285,7 +285,7 @@ generate
 
 		llr_fifo inst_llr_fifo (
           .clk(clk),                // input wire clk
-          .rst(r_decoding_end || ~rst_n),                // input wire rst
+          .rst(o_decoding_end || ~rst_n),                // input wire rst
           .din(llr_mem_din[i]),                // input wire [761 : 0] din
           .wr_en(llr_fifo_wr),            // input wire wr_en
           .rd_en(llr_fifo_rd),            // input wire rd_en
@@ -315,7 +315,7 @@ generate
 
 		q_sign_fifo inst_q_sign_fifo (
             .clk(clk),                // input wire clk
-            .rst(r_decoding_end || ~rst_n),                // input wire rst
+            .rst(o_decoding_end || ~rst_n),                // input wire rst
             .din(new_q_sign_fifo_din[i]),                // input wire [507 : 0] din
             .wr_en(new_q_sign_fifo_wr),            // input wire wr_en
             .rd_en(new_q_sign_fifo_rd),            // input wire rd_en
@@ -348,7 +348,7 @@ generate
 
 		q_sign_fifo inst_q_sign_fifo (
             .clk(clk),                // input wire clk
-            .rst(r_decoding_end || ~rst_n),                // input wire rst
+            .rst(o_decoding_end || ~rst_n),                // input wire rst
             .din(old_q_sign_fifo_din[i]),                // input wire [507 : 0] din
             .wr_en(old_q_sign_fifo_wr[i]),            // input wire wr_en
             .rd_en(old_q_sign_fifo_rd[i]),            // input wire rd_en
@@ -391,8 +391,10 @@ wire [MESSAGE_WIDTH*BLK_SIZE-1:0] r_stage1_shift_data [0:7];
 
 wire [SUBPCM_COLN-1:0] w_valid_stage1;
 wire [SUBPCM_COLN-1:0] w_valid_stage2;
-assign w_valid_stage1 = ((r_init_cnt > APP_INFO_DEPTH) && (r_decode_cnt >= RW_LATENCY + RW_LATENCY) && ~r_decoding_end) ? ((r_decode_cnt < RW_LATENCY + RW_LATENCY + APP_INFO_DEPTH - 1) ? 4'b1111 : (r_decode_cnt < RW_LATENCY + RW_LATENCY + APP_INFO_DEPTH) ? 4'b1110 : 4'b0000) : 4'b0000; 
-assign w_valid_stage2 = ((r_iter_cnt > 0 || r_layer_cnt > 0) && (r_init_cnt > APP_INFO_DEPTH) && (r_decode_cnt >= RW_LATENCY) && ~r_decoding_end) ? ((r_decode_cnt < RW_LATENCY + APP_INFO_DEPTH - 1) ? 4'b1111 : (r_decode_cnt < RW_LATENCY + APP_INFO_DEPTH) ? 4'b1110 : 4'b0000) : 4'b0000; 
+//assign w_valid_stage1 = ((r_init_cnt > APP_INFO_DEPTH) && (r_decode_cnt >= RW_LATENCY + RW_LATENCY) && ~r_decoding_end) ? ((r_decode_cnt < RW_LATENCY + RW_LATENCY + APP_INFO_DEPTH - 1) ? 4'b1111 : (r_decode_cnt < RW_LATENCY + RW_LATENCY + APP_INFO_DEPTH) ? 4'b1110 : 4'b0000) : 4'b0000; 
+//assign w_valid_stage2 = ((r_iter_cnt > 0 || r_layer_cnt > 0) && (r_init_cnt > APP_INFO_DEPTH) && (r_decode_cnt >= RW_LATENCY) && ~r_decoding_end) ? ((r_decode_cnt < RW_LATENCY + APP_INFO_DEPTH - 1) ? 4'b1111 : (r_decode_cnt < RW_LATENCY + APP_INFO_DEPTH) ? 4'b1110 : 4'b0000) : 4'b0000; 
+assign w_valid_stage1 = ((r_init_cnt > APP_INFO_DEPTH) && (r_decode_cnt >= RW_LATENCY + RW_LATENCY) && ~r_decoding_end) ? ((r_decode_cnt < RW_LATENCY + RW_LATENCY + APP_INFO_DEPTH - 1) ? 4'b1111 : (r_decode_cnt < RW_LATENCY + RW_LATENCY + APP_INFO_DEPTH) ? 4'b1111 : 4'b0000) : 4'b0000; 
+assign w_valid_stage2 = ((r_iter_cnt > 0 || r_layer_cnt > 0) && (r_init_cnt > APP_INFO_DEPTH) && (r_decode_cnt >= RW_LATENCY) && ~r_decoding_end) ? ((r_decode_cnt < RW_LATENCY + APP_INFO_DEPTH - 1) ? 4'b1111 : (r_decode_cnt < RW_LATENCY + APP_INFO_DEPTH) ? 4'b1111 : 4'b0000) : 4'b0000; 
 
 wire [LAYER_CNT_WIDTH-1:0] r_row_cnt_2;
 wire [SUBPCM_COLN*BLK_SIZE*MESSAGE_WIDTH-1:0] w_shift_llr [0:1];
@@ -456,10 +458,10 @@ generate
             .DATA_NUM				(BLK_SIZE),             //= 127,	// 数据的个数
             .SHIFT_OFFSET_WIDTH 	(GF_SIZE_LOG2)          //= 7		// 移位值的位宽
         )inst_barrel_shifter_pblk (	
-        	.i_blk_ena		(1'b1                                                           ),	// 该信号的每一位表示 QC Block 列中每个 QC Block 的使能信号，低电平表示对应的 QC Block 被全零矩阵掩盖
-        	.i_shift_offset	(w_shift_rom_dout[0][GF_SIZE_LOG2*(8-i)-1:GF_SIZE_LOG2*(7-i)]   ),	// 移位值
-        	.i_data			(llr_mem_dout[i % 4]                                            ),	// 输入数据
-        	.o_shift_data	(r_stage1_shift_data[i]                                         )	// 移位后的数据
+        	.i_blk_ena		(1'b1                                                           							),	// 该信号的每一位表示 QC Block 列中每个 QC Block 的使能信号，低电平表示对应的 QC Block 被全零矩阵掩盖
+        	.i_shift_offset	(BLK_SIZE[GF_SIZE_LOG2-1:0] - w_shift_rom_dout[0][GF_SIZE_LOG2*(8-i)-1:GF_SIZE_LOG2*(7-i)]  ),	// 移位值
+        	.i_data			(llr_mem_dout[i % 4]                                            							),	// 输入数据
+        	.o_shift_data	(r_stage1_shift_data[i]                                         							)	// 移位后的数据
         );
 
 	end	
@@ -479,7 +481,7 @@ generate
             .SHIFT_OFFSET_WIDTH 	(GF_SIZE_LOG2)          //= 7		// 移位值的位宽
         )inst_barrel_shifter (	
         	.i_blk_ena		(1'b1                                                                                           ),	// 该信号的每一位表示 QC Block 列中每个 QC Block 的使能信号，低电平表示对应的 QC Block 被全零矩阵掩盖
-        	.i_shift_offset	(BLK_SIZE[GF_SIZE_LOG2-1:0] - w_shift_rom_dout[1][GF_SIZE_LOG2*(8-i)-1:GF_SIZE_LOG2*(7-i)]      ),	// 移位值 应为BLK_SIZE[GF_SIZE_LOG2-1:0] - w_shift_rom_dout[1][GF_SIZE_LOG2*(8-i)-1:GF_SIZE_LOG2*(7-i)]
+        	.i_shift_offset	(w_shift_rom_dout[1][GF_SIZE_LOG2*(8-i)-1:GF_SIZE_LOG2*(7-i)]      								),	// 移位值 应为BLK_SIZE[GF_SIZE_LOG2-1:0] - w_shift_rom_dout[1][GF_SIZE_LOG2*(8-i)-1:GF_SIZE_LOG2*(7-i)]
         	.i_data			(w_stage1_data[i/SUBPCM_COLN][BLK_SIZE*MESSAGE_WIDTH*(4-i%4)-1:BLK_SIZE*MESSAGE_WIDTH*(3-i%4)]  ),	// 输入数据
         	.o_shift_data	(r_stage2_shift_data[i]                                                                         )	// 移位后的数据
         );
