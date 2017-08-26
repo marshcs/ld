@@ -1,7 +1,7 @@
 module pe #(
 	parameter 	C2V_WIDTH		= 4,
-	parameter	ROW_BLOCK		= 6,		// ÐÐ¿éÊý
-	parameter	COL_BLOCK		= 72,		// ÁÐ¿éÊý
+	parameter	ROW_BLOCK		= 6,		// ï¿½Ð¿ï¿½ï¿½ï¿½
+	parameter	COL_BLOCK		= 72,		// ï¿½Ð¿ï¿½ï¿½ï¿½
 	parameter	COL_CNT_WIDTH	= 7,
 	parameter	ROW_CNT_WIDTH	= 2,
 	parameter	MB_COL			= 4,
@@ -10,19 +10,19 @@ module pe #(
 	input									i_clk			,
 	input									i_rst_n			,
 
-	// stage1 £ºÉú³ÉC2VÐÅÏ¢¡¢ÕÒµ½×îÐ¡Öµ	
+	// stage1 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½C2Vï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Òµï¿½ï¿½ï¿½Ð¡Öµ	
 	input			[MB_COL-1:0]			i_vld_1			,
 	input			[ROW_CNT_WIDTH-1:0]		i_row_cnt_1		,
 	input			[COL_CNT_WIDTH-1:0]		i_col_cnt_1		,
 	input									i_1_last		,
 
-	// stage2£ºÉú³ÉÁ½´ÎC2VÐÅÏ¢µÄ²îÖµ D 	
+	// stage2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½C2Vï¿½ï¿½Ï¢ï¿½Ä²ï¿½Öµ D 	
 	input			[MB_COL-1:0]			i_vld_2			,
 	input			[ROW_CNT_WIDTH-1:0]		i_row_cnt_2		,
 	input			[COL_CNT_WIDTH-1:0]		i_col_cnt_2		,
 	input									i_2_last		,
 
-	input			[MB_COL*C2V_WIDTH-1:0]	i_l				,			// ÊäÈëÐÅºÅ
+	input			[MB_COL*C2V_WIDTH-1:0]	i_l				,			// ï¿½ï¿½ï¿½ï¿½ï¿½Åºï¿½
 	input			[MB_COL-1:0]			i_1_sign_q		,
 	input			[MB_COL-1:0]			i_2_sign_q		,
 	input			[MB_COL-1:0]			i_2_sign_q_ap	,
@@ -51,7 +51,7 @@ module pe #(
 	wire	[2*MB_COL_WIDTH+1:0]					w_min_idx;
 	wire	[MB_COL_WIDTH-1:0]						w_min1_idx;
 
-//------------------>> ¶Ë¿ÚÔ¤´¦Àí >>--------------------------
+//------------------>> ï¿½Ë¿ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ >>--------------------------
 	// input
 	wire	signed	[APP_WIDTH-1:0]	w_l		[0:MB_COL-1]			;
 
@@ -64,7 +64,7 @@ module pe #(
 
 	// output
 
-//------------------<< ¶Ë¿ÚÔ¤´¦Àí <<--------------------------	
+//------------------<< ï¿½Ë¿ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ <<--------------------------	
 
 //------------------>> R_regfile >>----------------------------
 
@@ -124,12 +124,12 @@ module pe #(
 		for(i=0; i < MB_COL; i=i+1)	begin:	r_1_gen
 			always@(*)	begin
 				if(i_col_cnt_1 == w_1_r_idx && w_1_r_mb_idx == i)	begin
-					if(i_1_sign_q[i] ^ w_1_r_tsign)	r_1_r[i] = (w_1_r_min2 == 0) ? 0 : {1'b1,~w_1_r_min2+1};
-					else							r_1_r[i] = 						 {1'b0,w_1_r_min2};
+					if(i_1_sign_q[i] ^ w_1_r_tsign)	r_1_r[i] =	~{1'b0,w_1_r_min2}+1;
+					else							r_1_r[i] =	 {1'b0,w_1_r_min2}	;
 				end
 				else	begin
-					if(i_1_sign_q[i] ^ w_1_r_tsign)	r_1_r[i] = (w_1_r_min2 == 0) ? 0 : {1'b1,~w_1_r_min1+1};
-					else							r_1_r[i] = 						 {1'b0,w_1_r_min1};
+					if(i_1_sign_q[i] ^ w_1_r_tsign)	r_1_r[i] =	~{1'b0,w_1_r_min1}+1;
+					else							r_1_r[i] =	 {1'b0,w_1_r_min1}	;
 				end
 			end
 		end
@@ -137,12 +137,12 @@ module pe #(
 		for(i=0; i < MB_COL; i=i+1)	begin:	r_2_gen
 			always@(*)	begin
 				if(i_col_cnt_2 == w_2_r_idx && w_2_r_mb_idx == i)	begin
-					if(i_2_sign_q[i] ^ w_2_r_tsign)	r_2_r[i] = (w_2_r_min2 == 0) ? 0 : {1'b1,~w_2_r_min2+1};
-					else							r_2_r[i] = {1'b0,w_2_r_min2};
+					if(i_2_sign_q[i] ^ w_2_r_tsign)	r_2_r[i] = ~{1'b0,w_2_r_min2}+1;
+					else							r_2_r[i] = 	{1'b0,w_2_r_min2};
 				end
 				else	begin
-					if(i_2_sign_q[i] ^ w_2_r_tsign)	r_2_r[i] = (w_2_r_min2 == 0) ? 0 : {1'b1,~w_2_r_min1+1};
-					else							r_2_r[i] = {1'b0,w_2_r_min1};
+					if(i_2_sign_q[i] ^ w_2_r_tsign)	r_2_r[i] = ~{1'b0,w_2_r_min1}+1;
+					else							r_2_r[i] =  {1'b0,w_2_r_min1};
 				end
 			end
 		end
@@ -150,11 +150,11 @@ module pe #(
 		for(i=0; i < MB_COL; i=i+1)	begin: r_2_ap_gen
 			always@(*) begin
 				if(i_col_cnt_2  == w_pong_idx && w_pong_mb_idx == i)	begin
-					if(i_2_sign_q_ap[i] ^ w_pong_tsign)	r_2_r_ap[i]	= (w_pong_min2 == 0) ? 0 : {1'b1,~w_pong_min2+1};
-					else								r_2_r_ap[i]	= {1'b0, w_pong_min2};
+					if(i_2_sign_q_ap[i] ^ w_pong_tsign)	r_2_r_ap[i]	= ~{1'b0, w_pong_min2}+1;
+					else								r_2_r_ap[i]	=  {1'b0, w_pong_min2};
 				end
 				else begin
-					if(i_2_sign_q_ap[i] ^ w_pong_tsign)	r_2_r_ap[i]	= (w_pong_min1 == 0) ? 0 : {1'b1,~w_pong_min1+1};
+					if(i_2_sign_q_ap[i] ^ w_pong_tsign)	r_2_r_ap[i]	= ~{1'b0, w_pong_min1}+1;
 					else								r_2_r_ap[i]	= {1'b0, w_pong_min1};
 				end
 			end
